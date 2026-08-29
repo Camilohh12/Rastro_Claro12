@@ -19,6 +19,7 @@ class Tratamiento extends Model
         'estado',
         'costo',
         'notas',
+        'zona_corporal',
         'responsable',
         'user_id',
     ];

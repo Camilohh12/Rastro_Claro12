@@ -16,6 +16,8 @@ import ScanIdentificadorModal from "./ScanIdentificadorModal";
 import QrCodeModal from "./QrCodeModal";
 import CicloVidaPanel from "./CicloVidaPanel";
 import DocumentosPanel from "./DocumentosPanel";
+import CuerpoPanel from "./CuerpoPanel";
+import PrediccionPesoPanel from "./PrediccionPesoPanel";
 
 export default function ShowAnimal({
     animal,
@@ -32,6 +34,9 @@ export default function ShowAnimal({
     tiposDocumento = {},
     extensionesDocumento = [],
     tamanoMaximoKb = 5120,
+    marcasCorporales = [],
+    tiposMarca = {},
+    prediccionPeso = null,
 }) {
     const { data, setData, post, processing, reset } = useForm({
         imagen: null,
@@ -303,6 +308,22 @@ export default function ShowAnimal({
                     desarrolloCorporal={desarrolloCorporal}
                 />
 
+
+
+                {/* ── Card: Proyección de peso ─────────────────────────── */}
+                {prediccionPeso && (
+                    <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-200">
+                        <PrediccionPesoPanel prediccion={prediccionPeso} />
+                    </div>
+                )}
+                {/* ── Card: Cuerpo del ejemplar en 3D ──────────────────── */}
+                <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-200">
+                    <CuerpoPanel
+                        animal={animal}
+                        marcas={marcasCorporales}
+                        tipos={tiposMarca}
+                    />
+                </div>
                 {/* ── Card: Documentos y evidencias ────────────────────── */}
                 <DocumentosPanel
                     animal={animal}

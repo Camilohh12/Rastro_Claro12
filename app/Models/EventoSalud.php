@@ -27,6 +27,7 @@ class EventoSalud extends Model
         'fecha_fin_retiro',
         'producto',
         'via_administracion',
+        'zona_corporal',
         'lote_vacuna',
         'observaciones',
         'estado',

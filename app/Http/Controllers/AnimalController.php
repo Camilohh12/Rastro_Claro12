@@ -221,6 +221,17 @@ class AnimalController extends Controller
                 'es_imagen' => $d->es_imagen,
             ]),
             'tiposDocumento'     => \App\Models\Documento::TIPOS,
+            // Marcas sobre el cuerpo, ordenadas con las activas primero: son
+            // las que interesan de un vistazo al abrir la ficha.
+            'marcasCorporales'   => $animal->marcasCorporales()
+                ->orderByRaw("CASE estado WHEN 'activa' THEN 0 ELSE 1 END")
+                ->orderByDesc('fecha')
+                ->get(),
+            'tiposMarca'         => \App\Models\MarcaCorporal::TIPOS,
+            // Proyección del peso a 90 días. Viaja en null cuando no hay
+            // pesajes suficientes: la ficha entonces no pinta la sección, en
+            // vez de mostrar una curva inventada.
+            'prediccionPeso'     => (new \App\Services\PrediccionPesoService(90))->para($animal),
             'extensionesDocumento' => \App\Models\Documento::EXTENSIONES,
             'tamanoMaximoKb'     => \App\Models\Documento::TAMANO_MAXIMO_KB,
             'lotes'              => Lote::all(),

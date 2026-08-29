@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import ModalAnimalSelect from '@Pages/Salud/ModalAnimalSelect';
 import ModalLoteSelect from '@Pages/Salud/ModalLoteSelect';
 import ModalNuevaVacuna from '@Pages/Salud/ModalNuevaVacuna';
+import { ZONAS } from '@/Components/Borrega3D/zonas';
 /**
  * Modal completo para registrar un EventoSalud.
  * Muestra campos dinámicos según el tipo seleccionado.
@@ -33,6 +34,7 @@ export default function ModalNuevaCita({ isOpen, onClose, animals = [],   lotes 
         costo:            '',   // se refleja solo en el módulo de Costos
         producto:         '',
         via_administracion: '',
+        zona_corporal:    '',   // al indicarla, se dibuja sola sobre el ejemplar
         periodo_retiro_dias: '',
         observaciones:    '',
         responsable:      '',
@@ -511,6 +513,28 @@ const loteLabel = selectedLote
                                 {errors.via_administracion && <span style={css.error}>{errors.via_administracion}</span>}
                             </label>
                         </div>
+
+                        {/* Al indicar la parte del cuerpo, la marca aparece
+                            sola sobre la figura 3D del ejemplar. Solo tiene
+                            sentido cuando la atención es de un ejemplar
+                            concreto: un evento de lote no marca cuerpos. */}
+                        {data.animal_id && (
+                            <label style={css.label}>
+                                Parte del cuerpo <span style={css.labelHint}>(opcional)</span>
+                                <select value={data.zona_corporal}
+                                    onChange={e => setData('zona_corporal', e.target.value)}
+                                    style={css.input}>
+                                    <option value="">Sin especificar</option>
+                                    {Object.entries(ZONAS).map(([clave, z]) => (
+                                        <option key={clave} value={clave}>{z.etiqueta}</option>
+                                    ))}
+                                </select>
+                                {errors.zona_corporal && <span style={css.error}>{errors.zona_corporal}</span>}
+                                <span style={{ ...css.labelHint, marginTop: 4 }}>
+                                    Si la indicas, quedará señalada sobre la figura del ejemplar en su ficha.
+                                </span>
+                            </label>
+                        )}
 
                         <label style={css.label}>
                             Periodo de retiro <span style={css.labelHint}>(días, opcional)</span>

@@ -24,3 +24,9 @@ Homestead.yaml
 Thumbs.db
 public/assets/UnityHubSetup-x64.exe
 public/assets/UnitySetup64-2022.3.62f3.exe.opdownload
+
+# Python (scripts de análisis)
+scripts/.venv/
+scripts/salida/
+__pycache__/
+*.pyc

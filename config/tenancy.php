@@ -23,6 +23,7 @@ use App\Models\EventoSalud;
 use App\Models\Faena;
 use App\Models\InventarioInsumo;
 use App\Models\Lote;
+use App\Models\MarcaCorporal;
 use App\Models\MovimientoLote;
 use App\Models\Pajilla;
 use App\Models\Parto;
@@ -72,6 +73,7 @@ return [
         Faena::class,
         InventarioInsumo::class,
         Lote::class,
+        MarcaCorporal::class,
         MovimientoLote::class,
         Pajilla::class,
         Parto::class,

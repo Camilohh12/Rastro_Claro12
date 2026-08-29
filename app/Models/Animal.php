@@ -453,6 +453,12 @@ public function movimientosLote(): HasMany
     return $this->hasMany(MovimientoLote::class)->orderByDesc('fecha');
 }
 
+/** Señalamientos sobre el cuerpo: lesiones, aplicaciones, arete. */
+public function marcasCorporales(): HasMany
+{
+    return $this->hasMany(MarcaCorporal::class);
+}
+
 public function condicionesCorporales(): HasMany
 {
     return $this->hasMany(CondicionCorporal::class)->orderByDesc('fecha');

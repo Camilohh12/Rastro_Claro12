@@ -43,6 +43,7 @@ use App\Http\Controllers\ActividadTrabajadorController;
 use App\Http\Controllers\CalendarioSanitarioController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ReporteOvinoController;
+use App\Http\Controllers\MarcaCorporalController;
 
 
 /*
@@ -188,6 +189,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('animales.qr');
     Route::get('/escanear/{token}', [AnimalController::class, 'escanearQr'])
         ->name('animales.escanear');
+
+    // Marcas sobre el cuerpo del ejemplar: dónde tiene la lesión, dónde se
+    // le aplicó la vacuna, en qué oreja trae el arete.
+    Route::post('/animales/{animal}/marcas', [MarcaCorporalController::class, 'store'])
+        ->name('marcas.store');
+    Route::patch('/marcas-corporales/{marca}', [MarcaCorporalController::class, 'resolver'])
+        ->name('marcas.resolver');
+    Route::delete('/marcas-corporales/{marca}', [MarcaCorporalController::class, 'destroy'])
+        ->name('marcas.destroy');
 
     // Diagnóstico del lector. Sin permiso de módulo a propósito: quien tiene
     // que probar el equipo suele ser justamente quien todavía no puede entrar
