@@ -35,9 +35,13 @@ RUN composer install --no-dev --optimize-autoloader
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create startup script
+# Create startup script (creates SQLite file, runs migrations, then starts services)
 RUN echo '#!/bin/sh\n\
 mkdir -p /run/nginx\n\
+mkdir -p /app/database\n\
+touch /app/database/database.sqlite\n\
+chown -R www-data:www-data /app/database\n\
+php artisan migrate --force\n\
 php-fpm -D\n\
 nginx -g "daemon off;"\n\
 ' > /start.sh && chmod +x /start.sh
