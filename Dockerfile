@@ -3,6 +3,10 @@ FROM node:18-alpine AS node-build
 
 WORKDIR /app
 
+# Set APP_URL for build time so Ziggy/Vite generate correct https URLs
+# (Railway env vars are only available at runtime, not during docker build)
+ENV APP_URL=https://rastroclaro-production.up.railway.app
+
 COPY package*.json ./
 RUN npm install
 
