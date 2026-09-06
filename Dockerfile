@@ -2,12 +2,32 @@ FROM php:8.1-fpm-alpine
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (NO composer via apk - it pulls a conflicting PHP version)
 RUN apk add --no-cache \
     nginx \
-    composer \
     postgresql-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+    libpng-dev \
+    jpeg-dev \
+    freetype-dev \
+    libxml2-dev \
+    icu-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_pgsql \
+    pdo_mysql \
+    gd \
+    bcmath \
+    dom \
+    session \
+    fileinfo \
+    tokenizer \
+    xml \
+    intl \
+    zip
+
+# Copy composer binary directly from the official composer image (uses this container's PHP)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy application
 COPY . .
