@@ -2,30 +2,12 @@ FROM php:8.1-fpm-alpine
 
 WORKDIR /app
 
-# Install system dependencies and PHP extensions
+# Install system dependencies
 RUN apk add --no-cache \
     nginx \
     composer \
     postgresql-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libxml2-dev \
-    icu-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_pgsql \
-    pdo_mysql \
-    gd \
-    bcmath \
-    dom \
-    session \
-    fileinfo \
-    tokenizer \
-    xml \
-    intl \
-    zip
+    && docker-php-ext-install pdo pdo_pgsql
 
 # Copy application
 COPY . .
