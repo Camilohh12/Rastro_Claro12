@@ -18,6 +18,8 @@ import CicloVidaPanel from "./CicloVidaPanel";
 import DocumentosPanel from "./DocumentosPanel";
 import CuerpoPanel from "./CuerpoPanel";
 import PrediccionPesoPanel from "./PrediccionPesoPanel";
+import ModalNuevaCita from "@Pages/Salud/ModalNuevaCita";
+import ModalNuevoTratamiento from "@Pages/Salud/ModalNuevoTratamiento";
 
 export default function ShowAnimal({
     animal,
@@ -37,6 +39,7 @@ export default function ShowAnimal({
     marcasCorporales = [],
     tiposMarca = {},
     prediccionPeso = null,
+    vacunas = [],
 }) {
     const { data, setData, post, processing, reset } = useForm({
         imagen: null,
@@ -44,6 +47,14 @@ export default function ShowAnimal({
 
     const fileInputRef = useRef(null);
     const [menuOpen, setMenuOpen] = useState(false);
+
+    // Registro sanitario abierto desde la figura 3D: guarda qué se va a
+    // registrar y sobre qué parte del cuerpo, para precargar el formulario.
+    const [registroSanitario, setRegistroSanitario] = useState(null);
+
+    const abrirRegistroSanitario = (tipo, zona) => {
+        setRegistroSanitario({ tipo, zona });
+    };
 
     const guardar = (e) => {
         e.preventDefault();
@@ -322,6 +333,7 @@ export default function ShowAnimal({
                         animal={animal}
                         marcas={marcasCorporales}
                         tipos={tiposMarca}
+                        onRegistrarEnSalud={abrirRegistroSanitario}
                     />
                 </div>
                 {/* ── Card: Documentos y evidencias ────────────────────── */}
@@ -595,6 +607,29 @@ export default function ShowAnimal({
                 show={showQr}
                 onClose={() => setShowQr(false)}
                 animal={animal}
+            />
+
+            {/* Registro sanitario abierto desde la figura 3D. Se usan los
+                mismos formularios del módulo de Salud, no una copia: así la
+                vacuna entra completa —con su dosis, su costo y su periodo de
+                retiro— y la marca sobre el cuerpo aparece sola después. */}
+            <ModalNuevaCita
+                isOpen={registroSanitario?.tipo === 'vacuna'}
+                onClose={() => setRegistroSanitario(null)}
+                animals={[animal]}
+                lotes={lotes}
+                vacunas={vacunas}
+                animalId={animal.id}
+                zonaCorporal={registroSanitario?.zona ?? ''}
+                tipoInicial="vacunacion"
+            />
+
+            <ModalNuevoTratamiento
+                isOpen={registroSanitario?.tipo === 'tratamiento'}
+                onClose={() => setRegistroSanitario(null)}
+                animals={[animal]}
+                animalId={animal.id}
+                zonaCorporal={registroSanitario?.zona ?? ''}
             />
         </div>
     );

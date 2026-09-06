@@ -285,6 +285,63 @@ class MarcaCorporalTest extends TestCase
         $this->assertSame(0, MarcaCorporal::count());
     }
 
+    /**
+     * Registrar una vacuna desde la figura 3D tiene que llegar al módulo de
+     * Salud, no quedarse en un punto de color.
+     *
+     * El panel ya no guarda esa marca por su cuenta: abre el formulario de
+     * Salud con la parte del cuerpo elegida. Así la vacuna entra completa
+     * —con su vacuna, su costo y su periodo de retiro— y la marca aparece
+     * sola por el observador.
+     */
+    public function test_a_vaccine_recorded_from_the_body_reaches_the_health_module(): void
+    {
+        $this->usuario();
+        $animal = $this->animal();
+
+        $vacuna = \App\Models\Vacuna::create([
+            'nombre' => 'Clostridiasis',
+            'patogeno' => 'Clostridium',
+        ]);
+
+        $this->post(route('eventos-salud.store'), [
+            'animal_id' => $animal->id,
+            'tipo' => \App\Models\EventoSalud::TIPO_VACUNACION,
+            'vacuna_id' => $vacuna->id,
+            'fecha_programada' => now()->toDateString(),
+            'diagnostico' => 'Refuerzo anual',
+            'zona_corporal' => 'cuello',
+        ])->assertSessionHasNoErrors();
+
+        // Queda registrada en Salud, que era justo lo que faltaba.
+        $evento = \App\Models\EventoSalud::first();
+
+        $this->assertNotNull($evento);
+        $this->assertSame($vacuna->id, $evento->vacuna_id);
+        $this->assertSame('cuello', $evento->zona_corporal);
+
+        // Y la marca sobre el cuerpo aparece sola, ligada a ese evento.
+        $marca = MarcaCorporal::first();
+
+        $this->assertNotNull($marca);
+        $this->assertSame(MarcaCorporal::VACUNA, $marca->tipo);
+        $this->assertSame(\App\Models\EventoSalud::class, $marca->origen_tipo);
+        $this->assertSame($evento->id, (int) $marca->origen_id);
+    }
+
+    /** La ficha lleva el catálogo de vacunas que ese formulario necesita. */
+    public function test_the_animal_page_carries_the_vaccine_catalog(): void
+    {
+        $this->usuario();
+        \App\Models\Vacuna::create(['nombre' => 'Clostridiasis', 'patogeno' => 'Clostridium']);
+
+        $props = $this->get(route('animales.show', $this->animal()->id))
+            ->getOriginalContent()->getData()['page']['props'];
+
+        $this->assertArrayHasKey('vacunas', $props);
+        $this->assertCount(1, $props['vacunas']);
+    }
+
     public function test_a_mark_from_another_ranch_cannot_be_resolved(): void
     {
         $this->usuario();

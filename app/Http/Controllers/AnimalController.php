@@ -232,6 +232,9 @@ class AnimalController extends Controller
             // pesajes suficientes: la ficha entonces no pinta la sección, en
             // vez de mostrar una curva inventada.
             'prediccionPeso'     => (new \App\Services\PrediccionPesoService(90))->para($animal),
+            // Catálogo de vacunas: lo necesita el formulario de Salud cuando
+            // se abre desde la figura 3D para registrar una vacunación.
+            'vacunas'            => \App\Models\Vacuna::orderBy('nombre')->get(['id', 'nombre']),
             'extensionesDocumento' => \App\Models\Documento::EXTENSIONES,
             'tamanoMaximoKb'     => \App\Models\Documento::TAMANO_MAXIMO_KB,
             'lotes'              => Lote::all(),

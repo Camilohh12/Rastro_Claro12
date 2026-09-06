@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState } from 'react';
 import { useForm, router } from '@inertiajs/react';
-import { Box, Plus, Check, RotateCcw, Trash2, X, Loader2 } from 'lucide-react';
+import { Box, Plus, Check, RotateCcw, Trash2, X, Loader2, Stethoscope } from 'lucide-react';
 import { ZONAS, COLOR_TIPO, COLOR_RESUELTA } from '@/Components/Borrega3D/zonas';
 
 /**
@@ -28,7 +28,39 @@ function fmt(f) {
     return f ? new Date(f).toLocaleDateString('es-MX') : '—';
 }
 
-export default function CuerpoPanel({ animal, marcas = [], tipos = {}, puedeEditar = true }) {
+/**
+ * Tipos que NO se capturan aquí porque pertenecen al módulo de Salud.
+ *
+ * Una vacuna no es una anotación: lleva qué vacuna se aplicó, su dosis, su
+ * costo y el periodo de retiro, y de ahí sale el gasto en Costos y el aviso de
+ * que el ejemplar no puede ir a sacrificio todavía. Registrarla desde aquí
+ * crearía un punto de color sin nada detrás — parecería hecha sin estarlo.
+ *
+ * Así que el panel manda a registrarla donde corresponde, llevándose la parte
+ * del cuerpo ya señalada. La marca aparece sola después, por el observador.
+ */
+const DERIVAN_A_SALUD = {
+    vacuna: {
+        etiqueta: 'una vacuna',
+        boton: 'Registrar la vacunación',
+        aviso: 'Las vacunas se registran en Salud, con su dosis, su costo y su periodo de '
+            + 'retiro. Al guardarla, la marca aparecerá sola sobre esta figura.',
+    },
+    tratamiento: {
+        etiqueta: 'un tratamiento',
+        boton: 'Registrar el tratamiento',
+        aviso: 'Los tratamientos se registran en Salud, con su duración y su costo. '
+            + 'Al guardarlo, la marca aparecerá sola sobre esta figura.',
+    },
+};
+
+export default function CuerpoPanel({
+    animal,
+    marcas = [],
+    tipos = {},
+    puedeEditar = true,
+    onRegistrarEnSalud,
+}) {
     const [modoSeleccion, setModoSeleccion] = useState(false);
     const [zona, setZona] = useState(null);
     const [resaltada, setResaltada] = useState(null);
@@ -60,6 +92,15 @@ export default function CuerpoPanel({ animal, marcas = [], tipos = {}, puedeEdit
             preserveScroll: true,
             onSuccess: () => cancelar(),
         });
+    };
+
+    // Vacunas y tratamientos no se guardan aquí: se abren en Salud llevándose
+    // la parte del cuerpo ya elegida.
+    const derivar = DERIVAN_A_SALUD[form.data.tipo];
+
+    const irASalud = () => {
+        onRegistrarEnSalud?.(form.data.tipo, form.data.zona);
+        cancelar();
     };
 
     const cambiarEstado = (marca) => {
@@ -172,16 +213,27 @@ export default function CuerpoPanel({ animal, marcas = [], tipos = {}, puedeEdit
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
-                        <textarea
-                            rows="2"
-                            value={form.data.descripcion}
-                            onChange={(e) => form.setData('descripcion', e.target.value)}
-                            placeholder="Qué se observó y, si aplica, qué se hizo."
-                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-                        />
-                    </div>
+                    {/* La descripción libre no aplica cuando el registro va a
+                        Salud: allí se captura con sus propios campos. */}
+                    {!derivar && (
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
+                            <textarea
+                                rows="2"
+                                value={form.data.descripcion}
+                                onChange={(e) => form.setData('descripcion', e.target.value)}
+                                placeholder="Qué se observó y, si aplica, qué se hizo."
+                                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                            />
+                        </div>
+                    )}
+
+                    {derivar && (
+                        <p className="text-sm text-blue-900 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                            <Stethoscope className="w-4 h-4 mt-0.5 shrink-0" />
+                            <span>{derivar.aviso}</span>
+                        </p>
+                    )}
 
                     <div className="flex justify-end gap-3">
                         <button
@@ -191,13 +243,25 @@ export default function CuerpoPanel({ animal, marcas = [], tipos = {}, puedeEdit
                         >
                             <X className="w-4 h-4" /> Cancelar
                         </button>
-                        <button
-                            type="submit"
-                            disabled={form.processing || !form.data.zona}
-                            className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium disabled:opacity-50"
-                        >
-                            {form.processing ? 'Guardando…' : 'Registrar marca'}
-                        </button>
+
+                        {derivar ? (
+                            <button
+                                type="button"
+                                onClick={irASalud}
+                                disabled={!form.data.zona}
+                                className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <Stethoscope className="w-4 h-4" /> {derivar.boton}
+                            </button>
+                        ) : (
+                            <button
+                                type="submit"
+                                disabled={form.processing || !form.data.zona}
+                                className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium disabled:opacity-50"
+                            >
+                                {form.processing ? 'Guardando…' : 'Registrar marca'}
+                            </button>
+                        )}
                     </div>
                 </form>
             )}

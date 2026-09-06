@@ -14,7 +14,11 @@ import { ZONAS } from '@/Components/Borrega3D/zonas';
  *  - saludId  : number|null  — si viene de un EventoSalud específico, pre-vincula
  *  - animalId : number|null  — si viene de la ficha de un animal, pre-selecciona
  */
-export default function ModalNuevoTratamiento({ isOpen, onClose, animals = [], saludId = null, animalId = null }) {
+export default function ModalNuevoTratamiento({
+    isOpen, onClose, animals = [], saludId = null, animalId = null,
+    // Llega cuando se abre tras señalar una parte sobre la figura 3D.
+    zonaCorporal = '',
+}) {
     const [animalModalOpen, setAnimalModalOpen] = useState(false);
     const firstRef = useRef(null);
 
@@ -38,10 +42,11 @@ export default function ModalNuevoTratamiento({ isOpen, onClose, animals = [], s
                 ...prev,
                 animal_id: animalId ?? '',
                 salud_id:  saludId  ?? '',
+                zona_corporal: zonaCorporal || prev.zona_corporal,
             }));
             setTimeout(() => firstRef.current?.focus(), 80);
         }
-    }, [isOpen, animalId, saludId]);
+    }, [isOpen, animalId, saludId, zonaCorporal]);
 
     useEffect(() => {
         if (!isOpen) return;

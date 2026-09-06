@@ -14,7 +14,18 @@ import { ZONAS } from '@/Components/Borrega3D/zonas';
  *  - animals  : Animal[]
  *  - vacunas  : Vacuna[]  ← catálogo de vacunas del sistema
  */
-export default function ModalNuevaCita({ isOpen, onClose, animals = [],   lotes = [],    vacunas = [] }) {
+export default function ModalNuevaCita({
+    isOpen,
+    onClose,
+    animals = [],
+    lotes = [],
+    vacunas = [],
+    // Precarga al abrirlo desde la ficha de un ejemplar: llega el animal y,
+    // si se señaló sobre la figura 3D, también la parte del cuerpo.
+    animalId = null,
+    zonaCorporal = '',
+    tipoInicial = null,
+}) {
     const [animalModalOpen, setAnimalModalOpen] = useState(false);
     const [loteModalOpen, setLoteModalOpen] = useState(false);
     const panelRef = useRef(null);
@@ -66,6 +77,20 @@ export default function ModalNuevaCita({ isOpen, onClose, animals = [],   lotes 
     useEffect(() => {
         if (isOpen) panelRef.current?.scrollTo(0, 0);
     }, [isOpen, data.tipo]);
+
+    // Al abrirlo desde la ficha, el animal y la zona ya vienen elegidos: así
+    // señalar la parte sobre la figura no se pierde al llegar aquí.
+    useEffect(() => {
+        if (!isOpen) return;
+
+        setData(prev => ({
+            ...prev,
+            animal_id: animalId ?? prev.animal_id,
+            zona_corporal: zonaCorporal || prev.zona_corporal,
+            tipo: tipoInicial ?? prev.tipo,
+        }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, animalId, zonaCorporal, tipoInicial]);
 
     function handleClose() {
         reset();
