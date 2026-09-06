@@ -2,9 +2,8 @@ FROM php:8.1-fpm-alpine
 
 WORKDIR /app
 
-# Install system dependencies (Alpine package names)
+# Install system dependencies and PHP extensions (Alpine Linux packages)
 # NOTE: dom, session, fileinfo, tokenizer, xml are already built into php:8.1-fpm-alpine
-# We only need to install what's NOT already there
 RUN apk add --no-cache \
     nginx \
     postgresql-dev \
@@ -13,6 +12,7 @@ RUN apk add --no-cache \
     freetype-dev \
     libxml2-dev \
     icu-dev \
+    libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo \
