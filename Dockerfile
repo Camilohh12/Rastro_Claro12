@@ -2,7 +2,9 @@ FROM php:8.1-fpm-alpine
 
 WORKDIR /app
 
-# Install system dependencies (NO composer via apk - it pulls a conflicting PHP version)
+# Install system dependencies (Alpine package names)
+# NOTE: dom, session, fileinfo, tokenizer, xml are already built into php:8.1-fpm-alpine
+# We only need to install what's NOT already there
 RUN apk add --no-cache \
     nginx \
     postgresql-dev \
@@ -18,15 +20,10 @@ RUN apk add --no-cache \
     pdo_mysql \
     gd \
     bcmath \
-    dom \
-    session \
-    fileinfo \
-    tokenizer \
-    xml \
     intl \
     zip
 
-# Copy composer binary directly from the official composer image (uses this container's PHP)
+# Copy composer binary directly from the official composer image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy application
