@@ -32,8 +32,8 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config (Alpine's nginx.conf includes /etc/nginx/http.d/*.conf, not conf.d)
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
 # Copy startup script (separate file, more reliable than echo with \n)
 COPY start.sh /start.sh
