@@ -35,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (env('APP_ENV') !== 'local' || env('FORCE_HTTPS')) {
+        \URL::forceScheme('https');
+        }
         // The validation factory may already be resolved by another provider,
         // so replace its verifier explicitly during boot as well.
         $presenceVerifier = new TenantPresenceVerifier($this->app['db']);
